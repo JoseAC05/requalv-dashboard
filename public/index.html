@@ -3,158 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Requalv Dashboard</title>
+    <title>Requalv - Panel Administrativo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            color: white;
             padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .navbar h1 { font-size: 1.8em; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            border-bottom: 2px solid #ddd;
         }
-        header {
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        header h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-        header p {
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
             color: #666;
-            font-size: 1.1em;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
         }
-        .cards-grid {
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin: 20px 0;
         }
-        .card {
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 { color: #667eea; margin-bottom: 10px; }
+        .stat-card .number { font-size: 2.5em; font-weight: bold; color: #764ba2; }
+        
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover { background: #764ba2; }
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+        .btn-danger:hover { background: #da190b; }
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        .btn-success:hover { background: #45a049; }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background: #f5f5f5; }
+        .action-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .error { color: #f44336; margin: 10px 0; }
+        .success { color: #4caf50; margin: 10px 0; }
+        .loading { color: #667eea; font-style: italic; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
             background: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-        .card p {
+        .modal-close {
+            float: right;
+            font-size: 1.5em;
+            cursor: pointer;
             color: #666;
-            line-height: 1.6;
-            margin-bottom: 10px;
         }
-        .stat {
-            font-size: 2em;
-            font-weight: bold;
-            color: #764ba2;
-            margin: 15px 0;
-        }
-        .status {
-            padding: 15px;
-            background: #e8f5e9;
-            border-left: 4px solid #4caf50;
-            border-radius: 5px;
-            margin: 15px 0;
-            color: #2e7d32;
-        }
-        .api-link {
-            display: inline-block;
-            margin: 10px 0;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        .api-link:hover {
-            background: #764ba2;
-        }
-        footer {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px;
-            margin-top: 30px;
-        }
+        .modal-close:hover { color: #333; }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <h1>🚀 Requalv - Panel Administrativo</h1>
+    </div>
+
     <div class="container">
-        <header>
-            <h1>🚀 Requalv Dashboard</h1>
-            <p>Sistema de Gestión de Clientes y Requisitos</p>
-        </header>
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('clients')">👥 Clientes</button>
+            <button class="tab-btn" onclick="switchTab('requirements')">📋 Requisitos</button>
+        </div>
 
-        <div class="cards-grid">
-            <div class="card">
-                <h2>📊 Sistema</h2>
-                <p>Tu dashboard está funcionando correctamente</p>
-                <div class="status">
-                    ✅ Backend conectado y activo
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <h2>Estadísticas Generales</h2>
+            <div class="stats-grid" id="stats-container">
+                <div class="stat-card">
+                    <h3>Clientes</h3>
+                    <div class="number" id="stat-clients">0</div>
                 </div>
-                <a href="https://requalv-api.onrender.com/api/health" class="api-link">Ver estado API</a>
+                <div class="stat-card">
+                    <h3>Requisitos Totales</h3>
+                    <div class="number" id="stat-requirements">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Requisitos Pendientes</h3>
+                    <div class="number" id="stat-pending">0</div>
+                </div>
+            </div>
+            <p id="api-status" class="loading">Conectando con API...</p>
+        </div>
+
+        <!-- CLIENTS TAB -->
+        <div id="clients" class="tab-content">
+            <h2>Gestionar Clientes</h2>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3>Agregar Nuevo Cliente</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" id="client-name" placeholder="Nombre del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="client-email" placeholder="email@example.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Empresa</label>
+                        <input type="text" id="client-company" placeholder="Nombre de empresa">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text" id="client-phone" placeholder="+34 123 456 789">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="createClient()">➕ Agregar Cliente</button>
+                <div id="client-message"></div>
             </div>
 
-            <div class="card">
-                <h2>👥 Clientes</h2>
-                <p>Gestiona todos tus clientes en un solo lugar</p>
-                <div class="stat">0</div>
-                <p style="font-size: 0.9em; color: #999;">Clientes registrados</p>
-            </div>
-
-            <div class="card">
-                <h2>📋 Requisitos</h2>
-                <p>Controla todos los requisitos y especificaciones</p>
-                <div class="stat">0</div>
-                <p style="font-size: 0.9em; color: #999;">Requisitos activos</p>
-            </div>
-
-            <div class="card">
-                <h2>📈 Estadísticas</h2>
-                <p>Visualiza métricas importantes de tu negocio</p>
-                <div class="stat">0</div>
-                <p style="font-size: 0.9em; color: #999;">Transacciones este mes</p>
-            </div>
-
-            <div class="card">
-                <h2>⚙️ Configuración</h2>
-                <p>API Backend</p>
-                <p style="font-size: 0.9em; word-break: break-all;">
-                    <strong>URL:</strong> https://requalv-api.onrender.com
-                </p>
-                <p style="font-size: 0.9em; margin-top: 10px;">
-                    <strong>Estado:</strong> <span style="color: #4caf50;">✅ Activo</span>
-                </p>
-            </div>
-
-            <div class="card">
-                <h2>🔗 Enlaces Útiles</h2>
-                <a href="https://requalv-api.onrender.com" class="api-link" style="display: block; text-align: center; margin: 10px 0;">API Backend</a>
-                <a href="https://github.com/JoseAC05/requalv-dashboard" class="api-link" style="display: block; text-align: center;">GitHub Repositorio</a>
+            <h3>Lista de Clientes</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Empresa</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-list">
+                        <tr><td colspan="6" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <footer>
-            <p>© 2025 Requalv - Todos los derechos reservados</p>
-            <p>Dashboard deployado en Vercel | Backend en Render</p>
-        </footer>
+        <!-- REQUIREMENTS TAB -->
+        <div id="requirements" class="tab-content">
+            <h2>Gestionar Requisitos</h2>
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3>Agregar Nuevo Requisito</h3>
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="req-client-id">
+                        <option value="">-- Seleccionar cliente --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="req-title" placeholder="Título del requisito">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="req-description" placeholder="Descripción detallada" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="req-status">
+                        <option value="pending">Pendiente</option>
+                        <option value="in_progress">En progreso</option>
+                        <option value="completed">Completado</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="createRequirement()">➕ Agregar Requisito</button>
+                <div id="req-message"></div>
+            </div>
+
+            <h3>Lista de Requisitos</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Cliente</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requirements-list">
+                        <tr><td colspan="5" class="loading">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <script>
+        const API_URL = 'https://requalv-api.onrender.com';
+
+        // FUNCIONES GENERALES
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'dashboard') loadStats();
+            if (tabName === 'clients') loadClients();
+            if (tabName === 'requirements') { loadRequirements(); loadClientsForSelect(); }
+        }
+
+        // STATS
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/stats`);
+                const data = await response.json();
+                document.getElementById('stat-clients').textContent = data.total_clients;
+                document.getElementById('stat-requirements').textContent = data.total_requirements;
+                document.getElementById('stat-pending').textContent = data.pending_requirements;
+                document.getElementById('api-status').innerHTML = '<span class="success">✅ API conectada correctamente</span>';
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        }
+
+        // CLIENTS
+        async function loadClients() {
+            try {
+                const response = await fetch(`${API_URL}/api/clients`);
+                const clients = await response.json();
+                const tbody = document.getElementById('clients-list');
+                
+                if (clients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #999;">Sin clientes registrados</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = clients.map(client => `
+                    <tr>
+                        <td>${client.id}</td>
+                        <td>${client.name}</td>
+                        <td>${client.email}</td>
+                        <td>${client.company || '-'}</td>
+                        <td>${client.phone || '-'}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn btn-danger" onclick="deleteClient(${client.id})">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('clients-list').innerHTML = `<tr><td colspan="6" class="error">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function createClient() {
+            const name = document.getElementById('client-name').value;
+            const email = document.getElementById('client-email').value;
+            const company = document.getElementById('client-company').value;
+            const phone = document.getElementById('client-phone').value;
+
+            if (!name || !email) {
+                document.getElementById('client-message').innerHTML = '<div class="error">❌ Nombre y email son requeridos</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/clients`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, company, phone })
+                });
+
+                if (response.ok) {
+                    document.getElementById('client-message').innerHTML = '<div class="success">✅ Cliente creado exitosamente</div>';
+                    document.getElementById('client-name').value = '';
+                    document.getElementById('client-email').value = '';
+                    document.getElementById('client-company').value = '';
+                    document.getElementById('client-phone').value = '';
+                    loadClients();
+                } else {
+                    document.getElementById('client-message').innerHTML = '<div class="error">❌ Error al crear cliente</div>';
+                }
+            } catch (error) {
+                document.getElementById('client-message').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function deleteClient(id) {
+            if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/clients/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadClients();
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // REQUIREMENTS
+        async function loadRequirements() {
+            try {
+                const response = await fetch(`${API_URL}/api/requirements`);
+                const requirements = await response.json();
+                const tbody = document.getElementById('requirements-list');
+
+                if (requirements.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Sin requisitos registrados</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = requirements.map(req => `
+                    <tr>
+                        <td>${req.id}</td>
+                        <td>${req.title}</td>
+                        <td>Cliente ${req.client_id}</td>
+                        <td><strong>${req.status}</strong></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn btn-danger" onclick="deleteRequirement(${req.id})">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('requirements-list').innerHTML = `<tr><td colspan="5" class="error">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function loadClientsForSelect() {
+            try {
+                const response = await fetch(`${API_URL}/api/clients`);
+                const clients = await response.json();
+                const select = document.getElementById('req-client-id');
+                
+                select.innerHTML = '<option value="">-- Seleccionar cliente --</option>' +
+                    clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+            } catch (error) {
+                console.error('Error loading clients:', error);
+            }
+        }
+
+        async function createRequirement() {
+            const client_id = document.getElementById('req-client-id').value;
+            const title = document.getElementById('req-title').value;
+            const description = document.getElementById('req-description').value;
+            const status = document.getElementById('req-status').value;
+
+            if (!client_id || !title) {
+                document.getElementById('req-message').innerHTML = '<div class="error">❌ Cliente y título son requeridos</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/requirements`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: parseInt(client_id), title, description, status })
+                });
+
+                if (response.ok) {
+                    document.getElementById('req-message').innerHTML = '<div class="success">✅ Requisito creado exitosamente</div>';
+                    document.getElementById('req-title').value = '';
+                    document.getElementById('req-description').value = '';
+                    loadRequirements();
+                } else {
+                    document.getElementById('req-message').innerHTML = '<div class="error">❌ Error al crear requisito</div>';
+                }
+            } catch (error) {
+                document.getElementById('req-message').innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function deleteRequirement(id) {
+            if (!confirm('¿Estás seguro de eliminar este requisito?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/requirements/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadRequirements();
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        // CARGAR AL INICIAR
+        window.addEventListener('load', () => {
+            loadStats();
+        });
+    </script>
 </body>
 </html>
+
